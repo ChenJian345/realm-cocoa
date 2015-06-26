@@ -29,6 +29,8 @@ namespace realm {
 
 @interface RLMRealm ()
 @property (nonatomic, readonly, getter=getOrCreateGroup) realm::Group *group;
+@property (nonatomic, readonly) realm::SharedGroup *sharedGroup;
+@property (nonatomic, readonly) bool inMemory;
 - (void)handleExternalCommit;
 @end
 

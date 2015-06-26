@@ -36,6 +36,8 @@ RLM_ASSUME_NONNULL_BEGIN
 
 @interface RLMResults RLM_GENERIC_COLLECTION : NSObject<RLMCollection, NSFastEnumeration>
 
+- (void)deliverOnQueue:(dispatch_queue_t)queue block:(void (^)(RLMResults *))block;
+
 /**---------------------------------------------------------------------------------------
  *  @name RLMResults Properties
  *  ---------------------------------------------------------------------------------------

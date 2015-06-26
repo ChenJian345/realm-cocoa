@@ -492,6 +492,28 @@
     XCTAssertEqual(30, [(EmployeeObject *)filtered[1] age]);
 }
 
+- (void)testAsyncQuerying {
+    RLMRealm *realm = [RLMRealm defaultRealm];
+
+    [realm beginWriteTransaction];
+    [EmployeeObject createInRealm:realm withValue:@{@"name": @"A",  @"age": @20, @"hired": @YES}];
+    [EmployeeObject createInRealm:realm withValue:@{@"name": @"B", @"age": @30, @"hired": @NO}];
+    [EmployeeObject createInRealm:realm withValue:@{@"name": @"C", @"age": @40, @"hired": @YES}];
+    [realm commitWriteTransaction];
+
+    RLMResults *sortedAge = [[EmployeeObject allObjects] sortedResultsUsingProperty:@"age" ascending:YES];
+    RLMResults *sortedName = [sortedAge sortedResultsUsingProperty:@"name" ascending:NO];
+    RLMResults *filtered = [sortedName objectsWhere:@"age > 0"];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"async query"];
+    [filtered deliverOnQueue:dispatch_get_main_queue() block:^(RLMResults *results) {
+        XCTAssertEqual(3U, results.count);
+        XCTAssertEqual(40, [(EmployeeObject *)results[0] age]);
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
 static vm_size_t get_resident_size() {
     struct task_basic_info info;
     mach_msg_type_number_t size = sizeof(info);
