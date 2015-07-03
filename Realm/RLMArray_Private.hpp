@@ -71,7 +71,7 @@ namespace realm {
 
 + (instancetype)resultsWithObjectClassName:(NSString *)objectClassName
                                      query:(std::unique_ptr<realm::Query>)query
-                                      sort:(RowIndexes::Sorter const&)sorter
+                                      sort:(realm::RowIndexes::Sorter const&)sorter
                                       view:(realm::TableView &&)view
                                      realm:(RLMRealm *)realm;
 
