@@ -379,6 +379,10 @@ namespace {
 }
 
 - (void)deliverOnQueue:(dispatch_queue_t)queue block:(void (^)(RLMResults *))block {
+    [self deliverOnQueue:queue queryQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) block:block];
+}
+
+- (void)deliverOnQueue:(dispatch_queue_t)queue queryQueue:(dispatch_queue_t)queryQueue block:(void (^)(RLMResults *))block {
     RLMCheckThread(_realm);
     if (_realm.readOnly) {
         @throw RLMException(@"Cannot do async queries on read-only realms.");
@@ -390,12 +394,12 @@ namespace {
 
     auto sharedGroup = _realm.sharedGroup;
     std::unique_ptr<SharedGroup::Handover<Query>> queryHandover = sharedGroup->export_for_handover(*[self cloneQuery], ConstSourcePayload::Stay);
-    auto queryQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 
     if (_viewCreated) {
         auto tableViewHandoverPtr = sharedGroup->export_for_handover(_backingView, ConstSourcePayload::Stay).release();
         deliverQuery(queryQueue, queryQueue, realmCreation, _objectClassName, queryHandover.release(), tableViewHandoverPtr, _sortOrder, block);
-    } else {
+    }
+    else {
         queryOnBackgroundQueue(queryQueue, queue, realmCreation, _objectClassName, std::move(queryHandover), _sortOrder, block);
     }
 }
