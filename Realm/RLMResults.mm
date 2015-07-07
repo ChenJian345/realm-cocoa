@@ -324,12 +324,17 @@ namespace {
         RLMSchema *schema;
     };
 
-    RLMRealm *createWithRealmCreation(RealmCreation realmCreation) {
-        NSError *realmCreationError = nil;
-        RLMRealm *realm = [RLMRealm realmWithPath:realmCreation.path key:realmCreation.key readOnly:realmCreation.readOnly inMemory:realmCreation.inMemory dynamic:realmCreation.dynamic schema:realmCreation.schema error:&realmCreationError];
-        [realm refresh];
-        [realm getOrCreateGroup];
-        return realm;
+    RLMRealm *createWithRealmCreation(RealmCreation realmCreation, SharedGroup::VersionID version) {
+        try {
+            NSError *realmCreationError = nil;
+            RLMRealm *realm = [RLMRealm realmWithPath:realmCreation.path key:realmCreation.key readOnly:realmCreation.readOnly inMemory:realmCreation.inMemory dynamic:realmCreation.dynamic schema:realmCreation.schema error:&realmCreationError];
+            [realm refresh];
+            [realm getOrCreateGroupAtVersion:version];
+            return realm;
+        }
+        catch (SharedGroup::BadVersion) {
+            return nil;
+        }
     }
 
     void deliverQuery(dispatch_queue_t queryQueue, dispatch_queue_t deliveryQueue, RealmCreation realmCreation,
@@ -343,7 +348,7 @@ namespace {
         SharedGroup::Handover<Query> *queryHandoverPtr = queryHandover.release();
         dispatch_async(queryQueue, ^{
             std::unique_ptr<SharedGroup::Handover<Query>> queryHandover(queryHandoverPtr);
-            RLMRealm *realm = createWithRealmCreation(realmCreation);
+            RLMRealm *realm = createWithRealmCreation(realmCreation, queryHandover->version);
             if (!realm) {
                 return;
             }
@@ -364,7 +369,7 @@ namespace {
         dispatch_async(deliveryQueue, ^{
             std::unique_ptr<SharedGroup::Handover<Query>> queryHandover(queryHandoverPtr);
             std::unique_ptr<SharedGroup::Handover<TableView>> tableViewHandover(tableViewHandoverPtr);
-            RLMRealm *realm = createWithRealmCreation(realmCreation);
+            RLMRealm *realm = createWithRealmCreation(realmCreation, queryHandover->version);
             auto resultsSharedGroup = realm.sharedGroup;
             if (!resultsSharedGroup || resultsSharedGroup->get_version_of_current_transaction() != queryHandover->version) {
                 queryOnBackgroundQueue(queryQueue, deliveryQueue, realmCreation, objectClassName, std::move(queryHandover), sort, resultsBlock);
