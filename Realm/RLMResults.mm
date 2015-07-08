@@ -398,14 +398,18 @@ namespace {
     };
 
     auto sharedGroup = _realm.sharedGroup;
-    std::unique_ptr<SharedGroup::Handover<Query>> queryHandover = sharedGroup->export_for_handover(*[self cloneQuery], ConstSourcePayload::Stay);
-
-    if (_viewCreated) {
-        auto tableViewHandoverPtr = sharedGroup->export_for_handover(_backingView, ConstSourcePayload::Stay).release();
-        deliverQuery(queryQueue, queryQueue, realmCreation, _objectClassName, queryHandover.release(), tableViewHandoverPtr, _sortOrder, block);
+    try {
+        std::unique_ptr<SharedGroup::Handover<Query>> queryHandover = sharedGroup->export_for_handover(*[self cloneQuery], ConstSourcePayload::Stay);
+        if (_viewCreated) {
+            auto tableViewHandoverPtr = sharedGroup->export_for_handover(_backingView, ConstSourcePayload::Stay).release();
+            deliverQuery(queryQueue, queryQueue, realmCreation, _objectClassName, queryHandover.release(), tableViewHandoverPtr, _sortOrder, block);
+        }
+        else {
+            queryOnBackgroundQueue(queryQueue, queue, realmCreation, _objectClassName, std::move(queryHandover), _sortOrder, block);
+        }
     }
-    else {
-        queryOnBackgroundQueue(queryQueue, queue, realmCreation, _objectClassName, std::move(queryHandover), _sortOrder, block);
+    catch (std::exception const& exception) {
+        @throw RLMException(exception);
     }
 }
 

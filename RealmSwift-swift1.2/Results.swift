@@ -78,6 +78,12 @@ Results cannot be created directly.
 */
 public final class Results<T: Object>: ResultsBase {
 
+    public func deliverOn(queue: dispatch_queue_t, block: Results<T> -> Void) {
+        rlmResults.deliverOnQueue(queue) {
+            block(Results<T>($0))
+        }
+    }
+
     // MARK: Properties
 
     /// Returns the Realm these results are associated with.
