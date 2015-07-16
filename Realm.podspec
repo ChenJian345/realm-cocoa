@@ -31,7 +31,7 @@ Pod::Spec.new do |s|
                               'include/Realm/RLMResults.h',
                               'include/Realm/RLMSchema.h',
                               'include/Realm/Realm.h',
-			      'include/Realm/RLMRealm_Dynamic.h'
+                              'include/Realm/RLMRealm_Dynamic.h'
 
   s.module_map              = 'Realm/module.modulemap'
   s.compiler_flags          = "-DREALM_HAVE_CONFIG -DREALM_COCOA_VERSION='@\"#{s.version}\"' -D__ASSERTMACROS__"
