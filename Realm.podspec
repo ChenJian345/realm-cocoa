@@ -30,7 +30,8 @@ Pod::Spec.new do |s|
                               'include/Realm/RLMRealm.h',
                               'include/Realm/RLMResults.h',
                               'include/Realm/RLMSchema.h',
-                              'include/Realm/Realm.h'
+                              'include/Realm/Realm.h',
+			      'include/Realm/RLMRealm_Dynamic.h'
 
   s.module_map              = 'Realm/module.modulemap'
   s.compiler_flags          = "-DREALM_HAVE_CONFIG -DREALM_COCOA_VERSION='@\"#{s.version}\"' -D__ASSERTMACROS__"
@@ -55,6 +56,6 @@ Pod::Spec.new do |s|
   s.subspec 'Headers' do |s|
     s.source_files          = 'include/**/*.{h,hpp}'
     s.public_header_files   = public_header_files
-    s.private_header_files  = 'include/Realm/*{RealmUtil,ListBase,ObjectStore,Private,Dynamic}.h', 'include/Realm/ObjectStore/*.hpp'
+    s.private_header_files  = 'include/Realm/*{RealmUtil,ListBase,ObjectStore,Private}.h', 'include/Realm/ObjectStore/*.hpp'
   end
 end
