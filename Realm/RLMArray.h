@@ -175,6 +175,18 @@ RLM_ASSUME_NONNULL_BEGIN
  */
 - (void)replaceObjectAtIndex:(NSUInteger)index withObject:(RLMObjectArgument)anObject;
 
+/**
+ Moves the object at from the given source index to the given destination index.
+
+ Throws an exception when called with an index greater than or equal to the 
+ number of objects in this RLMArray.
+
+ @warning This method can only be called during a write transaction.
+
+ @param from  The list index of the object to be replaced.
+ @param to    An object to replace at the specified index.
+ */
+- (void)moveObjectAtIndex:(NSUInteger)sourceIndex toIndex:(NSUInteger)destinationIndex;
 
 #pragma mark -
 

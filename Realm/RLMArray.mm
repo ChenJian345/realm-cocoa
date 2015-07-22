@@ -150,6 +150,14 @@ static void RLMValidateArrayBounds(__unsafe_unretained RLMArray *const ar,
     [_backingArray replaceObjectAtIndex:index withObject:anObject];
 }
 
+- (void)moveObjectAtIndex:(NSUInteger)sourceIndex toIndex:(NSUInteger)destinationIndex {
+    RLMValidateArrayBounds(self, sourceIndex);
+    RLMValidateArrayBounds(self, destinationIndex);
+    RLMObjectBase *original = _backingArray[sourceIndex];
+    [_backingArray removeObjectAtIndex:sourceIndex];
+    [_backingArray insertObject:original atIndex:destinationIndex];
+}
+
 - (NSUInteger)indexOfObject:(RLMObject *)object {
     RLMValidateMatchingObjectType(self, object);
     NSUInteger index = 0;
